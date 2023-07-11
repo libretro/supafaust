@@ -27,6 +27,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#ifdef VITA
+ #define SSIZE_MAX 2147483647
+#endif
+
 #ifdef WIN32
  #include <mednafen/win32-common.h>
 #else

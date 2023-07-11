@@ -82,7 +82,7 @@ else ifeq ($(platform), vita)
 	CFLAGS += -ftree-vectorize -fno-optimize-sibling-calls \
 	-fomit-frame-pointer -DVITA \
 	-mword-relocations -fno-unwind-tables -fno-asynchronous-unwind-tables \
-	-marm -mcpu=cortex-a9 -mfloat-abi=hard
+	-mcpu=cortex-a9 -mfloat-abi=hard
 	CXXFLAGS += $(CFLAGS)
 	HAVE_NEON = 1
 	ARCH = arm

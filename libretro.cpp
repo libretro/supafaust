@@ -245,6 +245,14 @@ static void pipe_option_bool(const char* lr_name, const char* mdfn_name)
  MDFNI_SetSetting(mdfn_name, v ? "1" : "0");
 }
 
+static void check_variables(bool loaded)
+{
+   pipe_option("supafaust_slstart", "snes_faust.slstart");
+   pipe_option("supafaust_slend", "snes_faust.slend");
+   pipe_option("supafaust_slstartp", "snes_faust.slstartp");
+   pipe_option("supafaust_slendp", "snes_faust.slendp");
+}
+
 MDFN_COLD RETRO_API void retro_init(void)
 {
  assert(!Initialized);
@@ -459,6 +467,12 @@ RETRO_API void retro_run(void)
  //
  //
   DoFrame(surf.get());
+
+  bool updated = false;
+  if (cb.environment(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)
+  {
+      check_variables(true);
+  }
 }
 
 RETRO_API size_t retro_serialize_size(void)

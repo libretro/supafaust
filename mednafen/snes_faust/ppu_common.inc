@@ -1348,6 +1348,11 @@ void PPU_StartFrame(EmulateSpecStruct* espec)
  //
  //
  //
+ unsigned sls = MDFN_GetSettingUI(PAL ? "snes_faust.slstartp" : "snes_faust.slstart");
+ unsigned sle = MDFN_GetSettingUI(PAL ? "snes_faust.slendp" : "snes_faust.slend");
+ SLDRH = sle + 1 - sls;
+ //
+ //
  es->InterlaceOn = false;
  es->DisplayRect.x = 0;
  es->DisplayRect.w = 256;

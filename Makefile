@@ -69,6 +69,25 @@ else ifeq ($(platform), classic_armv7_a7)
 	  endif
 	endif
 
+# (armv7 a9, hard point, neon based) ###
+# PlayStation Vita
+else ifeq ($(platform), vita)
+	TARGET := $(TARGET_NAME)_libretro_$(platform).a
+	CC = arm-vita-eabi-gcc$(EXE_EXT)
+	CXX = arm-vita-eabi-g++$(EXE_EXT)
+	AR = arm-vita-eabi-ar$(EXE_EXT)
+	AS = arm-vita-eabi-as$(EXE_EXT)
+	fpic :=
+	SHARED := 
+	CFLAGS += -ftree-vectorize -fno-optimize-sibling-calls \
+	-fomit-frame-pointer -DVITA \
+	-mword-relocations -fno-unwind-tables -fno-asynchronous-unwind-tables \
+	-mcpu=cortex-a9 -mfloat-abi=hard
+	CXXFLAGS += $(CFLAGS)
+	HAVE_NEON = 1
+	ARCH = arm
+	STATIC_LINKING := 1
+
 # (armv8 a35, hard point, neon based) ###
 # PlayStation Classic
 else ifeq ($(platform), classic_armv8_a35)
@@ -305,7 +324,11 @@ FLAGS += $(fpic)
 FLAGS += $(ENDIANNESS_DEFINES) $(WARNINGS) -DPSS_STYLE=$(PSS_STYLE) -D__LIBRETRO__
 
 CXX ?= g++
+ifeq ($(platform),vita)
+CXXFLAGS += -fsigned-char -fwrapv -I. $(FLAGS) $(EXTRA_INCLUDES) -std=c++11
+else
 CXXFLAGS += -fvisibility=hidden -fsigned-char -fwrapv -I. $(FLAGS) $(EXTRA_INCLUDES) -std=c++11
+endif
 CPPFLAGS =  -D_GNU_SOURCE=1
 
 $(TARGET): $(OBJECTS)

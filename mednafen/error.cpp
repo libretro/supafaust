@@ -30,14 +30,27 @@ MDFN_Error::MDFN_Error()
  abort();
 }
 
-MDFN_Error::MDFN_Error(int errno_code_new, const char *format, ...)
+MDFN_Error::MDFN_Error(int errno_code_new, const char *fmt, ...)
 {
+#ifdef VITA
+ va_list list;
+ static char string[512];
+
+ va_start(list, fmt);
+ vsprintf(string, fmt, list);
+ va_end(list);
+
+ printf("[ERROR %X] %s: %s\n", errno_code_new, string);
+#endif
  errno_code = errno_code_new;
 }
 
 
 MDFN_Error::MDFN_Error(const ErrnoHolder &enh)
 {
+#ifdef VITA
+ printf("[ERROR2 %X]\n", enh.Errno());
+#endif
  errno_code = enh.Errno();
 }
 
@@ -48,6 +61,9 @@ MDFN_Error::~MDFN_Error()
 
 MDFN_Error::MDFN_Error(const MDFN_Error &ze_error)
 {
+#ifdef VITA
+ printf("[ERROR3 %X]\n", ze_error.errno_code);
+#endif
  errno_code = ze_error.errno_code;
 }
 

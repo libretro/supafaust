@@ -59,6 +59,10 @@
  #include <semaphore.h>
 #endif
 
+#ifdef VITA
+#define CPU_SETSIZE 1024
+#endif
+
 #include <time.h>
 
 namespace Mednafen
@@ -202,6 +206,11 @@ uintptr_t Thread_ID(void)
  return LocalThreadID;
 }
 
+// FIXME: Something's off in pthread_setaffinity_np and if we have this enabled, emulator just will throw an std::terminate
+#ifdef VITA
+#undef PTHREAD_AFFINITY_NP
+#endif
+
 #if defined(PTHREAD_AFFINITY_NP)
 //template<typename T> static T MDFN_PTHREAD_NP_CPUSET_T_HELPER(int (*)(pthread_t, size_t, T*)) { T dummy; CPU_ZERO(&dummy); return dummy; }
 //typedef decltype(MDFN_PTHREAD_NP_CPUSET_T_HELPER(pthread_getaffinity_np)) MDFN_PTHREAD_NP_CPUSET_T;
@@ -257,9 +266,13 @@ uint64 Thread_SetAffinity(Thread* thread, const uint64 mask)
 #warning "Compiling without affinity setting support."
 uint64 Thread_SetAffinity(Thread* thread, uint64 mask)
 {
+#ifdef VITA
+ return 0;
+#else
  assert(mask != 0);
  //
  throw MDFN_Error(0, _("Setting affinity to 0x%016llx failed: %s"), (unsigned long long)mask, _("pthread_setaffinity_np() not available."));
+#endif
 }
 #endif
 

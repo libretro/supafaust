@@ -308,7 +308,7 @@ MDFN_COLD RETRO_API void retro_get_system_info(retro_system_info* info)
  assert(info);
  //
  memset(info, 0, sizeof(*info));
- info->library_name = "Supafaust";
+ info->library_name = "Beetle Supafaust";
  info->library_version = MEDNAFEN_VERSION GIT_VERSION;
  info->valid_extensions = "smc|swc|sfc|fig";
  info->need_fullpath = false;

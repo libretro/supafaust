@@ -482,15 +482,31 @@ RETRO_API size_t retro_serialize_size(void)
 
 RETRO_API bool retro_serialize(void* data, size_t size)
 {
- ExtMemStream ssms(data, size);
- MDFNSS_SaveSM(&ssms, true);
+ try
+ {
+  ExtMemStream ssms(data, size);
+  MDFNSS_SaveSM(&ssms, true);
+ }
+ catch(std::exception& e)
+ {
+  fprintf(stderr, "retro_serialize failed: %s\n", e.what());
+  return false;
+ }
  return true;
 }
 
 RETRO_API bool retro_unserialize(const void* data, size_t size)
 {
- ExtMemStream ssms(data, size);
- MDFNSS_LoadSM(&ssms, true);
+ try
+ {
+  ExtMemStream ssms(data, size);
+  MDFNSS_LoadSM(&ssms, true);
+ }
+ catch(std::exception& e)
+ {
+  fprintf(stderr, "retro_unserialize failed: %s\n", e.what());
+  return false;
+ }
  return true;
 }
 

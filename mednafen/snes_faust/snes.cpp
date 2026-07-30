@@ -1016,6 +1016,13 @@ MDFN_COLD uint8* GetNV(uint32* size)
  return CART_GetRAMPointer();
 }
 
+MDFN_COLD uint8* GetWRAM(uint32* size)
+{
+ *size = sizeof(WRAM);
+
+ return WRAM;
+}
+
 uint32 SNES_GetRegister(const unsigned int id, char* special, const uint32 special_len)
 {
  uint32 ret = 0xDEADBEEF;

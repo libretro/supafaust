@@ -494,6 +494,11 @@ RETRO_API bool retro_unserialize(const void* data, size_t size)
  return true;
 }
 
+namespace MDFN_IEN_SNES_FAUST
+{
+ MDFN_COLD uint8* GetWRAM(uint32* size);
+}
+
 MDFN_COLD RETRO_API bool retro_load_game(const retro_game_info* game)
 {
  assert(game);
@@ -705,6 +710,19 @@ MDFN_COLD RETRO_API bool retro_load_game(const retro_game_info* game)
   cgi = MDFNI_LoadGame(&gf);
   //
   //
+  {
+   uint32 wram_size = 0;
+   uint8* const wram = MDFN_IEN_SNES_FAUST::GetWRAM(&wram_size);
+   struct retro_memory_descriptor desc = {};
+   desc.flags = RETRO_MEMDESC_SYSTEM_RAM;
+   desc.ptr = wram;
+   desc.start = 0x7E0000;
+   desc.len = wram_size;
+   struct retro_memory_map map = { &desc, 1 };
+   cb.environment(RETRO_ENVIRONMENT_SET_MEMORY_MAPS, &map);
+  }
+  //
+  //
   for(size_t i = 0; i < ports_active; i++)
   {
    port_data[i] = MDFNI_SetInput(i/*port*/, 1/*device type id, gamepad*/);
@@ -791,23 +809,27 @@ namespace MDFN_IEN_SNES_FAUST
 RETRO_API void* retro_get_memory_data(unsigned id)
 {
  assert(cgi);
- if(/*!cgi->GetNV ||*/ id != RETRO_MEMORY_SAVE_RAM)
-  return nullptr;
- //
  uint32 size;
 
- return MDFN_IEN_SNES_FAUST::GetNV(&size); //cgi->GetNV(&size);
+ if(id == RETRO_MEMORY_SAVE_RAM)
+  return MDFN_IEN_SNES_FAUST::GetNV(&size); //cgi->GetNV(&size);
+
+ if(id == RETRO_MEMORY_SYSTEM_RAM)
+  return MDFN_IEN_SNES_FAUST::GetWRAM(&size);
+
+ return nullptr;
 }
 
 RETRO_API size_t retro_get_memory_size(unsigned id)
 {
  assert(cgi);
- if(/*!cgi->GetNV ||*/ id != RETRO_MEMORY_SAVE_RAM)
-  return 0;
- //
  uint32 size = 0;
 
- MDFN_IEN_SNES_FAUST::GetNV(&size); //cgi->GetNV(&size);
+ if(id == RETRO_MEMORY_SAVE_RAM)
+  MDFN_IEN_SNES_FAUST::GetNV(&size); //cgi->GetNV(&size);
+
+ if(id == RETRO_MEMORY_SYSTEM_RAM)
+  MDFN_IEN_SNES_FAUST::GetWRAM(&size);
 
  return size;
 }

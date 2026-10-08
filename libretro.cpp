@@ -445,28 +445,62 @@ RETRO_API void retro_run(void)
  {
   MDFNI_DelCheats();
   //
-  MemoryPatch mp;
-
+  // A cheat may hold several codes joined with '+'. Each code is tried
+  // against every format (Game Genie, then Pro Action Replay); the decoders
+  // throw on a code that is not theirs, and an uncaught throw here would
+  // abort the frontend, so a code no format accepts is logged and skipped.
   for(size_t i = 0; i < Cheats.size(); i++)
   {
-   for(auto const& cfie : cgi->CheatInfo.CheatFormatInfo)
+   size_t start = 0;
+
+   while(start <= Cheats[i].size())
    {
-     if(!cfie.DecodeCheat(Cheats[i], &mp))
+    size_t end = Cheats[i].find('+', start);
+
+    if(end == std::string::npos)
+     end = Cheats[i].size();
+
+    const std::string code = Cheats[i].substr(start, end - start);
+    bool added = false;
+
+    for(auto const& cfie : cgi->CheatInfo.CheatFormatInfo)
+    {
+     if(code.empty())
+      break;
+
+     try
      {
-      MDFNI_AddCheat(mp);
-      //
-      mp = MemoryPatch();
+      MemoryPatch mp;
+
+      // true means the format needs more lines; no SNES format does.
+      if(!cfie.DecodeCheat(code, &mp))
+      {
+       MDFNI_AddCheat(mp);
+       added = true;
+      }
+      break;
      }
-     break;
+     catch(std::exception&)
+     {
+     }
+    }
+
+    if(!added && !code.empty() && cb.log)
+     cb.log(RETRO_LOG_WARN, "Cheat code \"%s\" is not Game Genie or Pro Action Replay; skipped.\n", code.c_str());
+
+    start = end + 1;
    }
   }
 
   CheatsChanged = false;
  }
  //
+ // Pro Action Replay codes are RAM writes ('R' patches), applied once per
+ // frame before emulation as Mednafen's own driver loop does. Game Genie
+ // codes are read patches and need no per-frame work.
  //
- //
-  DoFrame(surf.get());
+ MDFNMP_ApplyPeriodicCheats();
+ DoFrame(surf.get());
 
   bool updated = false;
   if (cb.environment(RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE, &updated) && updated)

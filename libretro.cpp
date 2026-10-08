@@ -786,11 +786,14 @@ RETRO_API unsigned retro_get_region(void)
 namespace MDFN_IEN_SNES_FAUST
 {
  MDFN_COLD uint8* GetNV(uint32* size);
+ uint8* GetWRAM(uint32* size);
 }
 
 RETRO_API void* retro_get_memory_data(unsigned id)
 {
  assert(cgi);
+ if(id == RETRO_MEMORY_SYSTEM_RAM)
+  return MDFN_IEN_SNES_FAUST::GetWRAM(nullptr);
  if(/*!cgi->GetNV ||*/ id != RETRO_MEMORY_SAVE_RAM)
   return nullptr;
  //
@@ -802,6 +805,12 @@ RETRO_API void* retro_get_memory_data(unsigned id)
 RETRO_API size_t retro_get_memory_size(unsigned id)
 {
  assert(cgi);
+ if(id == RETRO_MEMORY_SYSTEM_RAM)
+ {
+  uint32 wram_size = 0;
+  MDFN_IEN_SNES_FAUST::GetWRAM(&wram_size);
+  return wram_size;
+ }
  if(/*!cgi->GetNV ||*/ id != RETRO_MEMORY_SAVE_RAM)
   return 0;
  //

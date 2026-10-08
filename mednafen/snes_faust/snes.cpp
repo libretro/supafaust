@@ -1054,6 +1054,15 @@ void PokeWRAM(uint32 addr, uint8 val)
  WRAM[addr & 0x1FFFF] = val;
 }
 
+// For the libretro port's RETRO_MEMORY_SYSTEM_RAM.
+uint8* GetWRAM(uint32* size)
+{
+ if(size)
+  *size = sizeof(WRAM);
+
+ return WRAM;
+}
+
 static const FileExtensionSpecStruct KnownExtensions[] =
 {
  { ".smc", 0, "Super Magicom ROM Image" },

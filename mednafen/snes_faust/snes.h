@@ -153,6 +153,7 @@ void SNES_SetRegister(const unsigned int id, uint32 value) MDFN_COLD;
 
 uint8 PeekWRAM(uint32 addr) MDFN_COLD;
 void PokeWRAM(uint32 addr, uint8 val) MDFN_COLD;
+uint8* GetWRAM(uint32* size);
 }
 
 #endif
